@@ -18,6 +18,7 @@ var pageRequestUrl = [];
 var resData = [];
 
 var pageRequest = "http://www.lagou.com/jobs/positionAjax.json?px=new&city=深圳&needAddtionalResult=false";
+var currentPage = 6;
 
 var spider = {
     init: function () {
@@ -57,16 +58,17 @@ var spider = {
 
         
         //单个post请求测试
+        /*
         superagent
-            .post('http://www.lagou.com/jobs/positionAjax.json?px=new&city=深圳&needAddtionalResult=false&pn=8&kd=前端开发')
-            // .send({ first:false, pn: 8, kd: '前端开发' })
+            .post('http://www.lagou.com/jobs/positionAjax.json?px=new&city=深圳&needAddtionalResult=false')
+            .send({ first:false, pn: 2, kd: '前端开发' })
             // .set('X-API-Key', 'foobar')
-            .send()
-            .set('Accept', 'application/json')
+            // .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
             .end(function(err, res){
                 if (res.ok) {
                     // console.log( JSON.stringify(res.body) );
-                    resData = resData.concat(res.body.content);
+                    resData = resData.concat(res.body);
                     // console.log(resData)
                     // return resData;
                     ep.emit('getCompanyData');
@@ -75,9 +77,46 @@ var spider = {
                 }
             });
 
+            */
+
+
+        //单个get 请求
+       
+        while (currentPage--) {
+            superagent
+                .get("http://www.lagou.com/jobs/positionAjax.json")
+                .query({
+                    px:'new',
+                    city:'深圳',
+                    needAddtionalResult:false,
+                    pn:currentPage,
+                    kd:'前端开发'
+                })
+                .end(function (err,res) {
+                    if (res.ok) {
+                        // console.log( JSON.stringify(res.body) );
+                        
+                        resData = resData.concat(res.body );//res.body.content.positionResult.result
+                        
+                        // console.log(resData)
+                        
+                        ep.emit('getCompanyData');
+                        console.log(currentPage)
+                        if (currentPage == 10) return false;
+                        
+                        
+                    } else {
+                        console.log('Oh no! error ' + res.text);
+                    }
+                })
+
+        }
+
+
+
+        //循环获取
 /*            for (var currentPage = 1; currentPage <= pageNum ; currentPage++ ) {
 
-                (function (currentPage) {
 
                 superagent
                     .post(pageRequest)
@@ -97,7 +136,6 @@ var spider = {
                         }
                     });
 
-                })(currentPage);
             }*/
 
     },
@@ -105,7 +143,7 @@ var spider = {
     eventHandle: function (res) {
         console.log("触发事件")
 
-        ep.after('getCompanyData', 1 ,function(articleUrls){
+        ep.after('getCompanyData', 5 ,function(articleUrls){
             console.log("事件代理")
             // 当所有 'getCompanyData' 事件完成后的回调触发下面事件
             // ...
