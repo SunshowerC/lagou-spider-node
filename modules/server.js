@@ -29,59 +29,12 @@ var spider = {
     },
     
     getPageRequestUrl: function () {
- /*       for (var i = 1; i < pageNum; i++) {
-            pageRequestUrl.push("http://www.lagou.com/jobs/positionAjax.json?px=new&city=深圳&needAddtionalResult=false&pn=" + i + "&kd=前端开发");
-        }*/
-        
-        // console.log(pageRequestUrl)
+
     },
 
     getCompanyInfo: function () {
 
-/*        superagent.get("http://www.lagou.com/jobs/positionAjax.json?px=new&city=深圳&needAddtionalResult=false&pn=12&kd=前端开发")
-            .end(function (err,pres) {
-                if (err) return console.error(err);
-                console.log(pres)
-            })*/
-/*        pageRequestUrl.forEach(function (pageUrl) {
-            superagent.post(pageUrl)
-                .end(function (err, pres) {
-                    if (err) return console.error(err);
-                    // console.log(pres)
-                    resData.push(pres);
-                    // console.log(pres.text)
-                    // 相当于一个计数器
-                    ep.emit('getCompanyData');
-
-                })
-        });*/
-
-        
-        //单个post请求测试
-        /*
-        superagent
-            .post('http://www.lagou.com/jobs/positionAjax.json?px=new&city=深圳&needAddtionalResult=false')
-            .send({ first:false, pn: 2, kd: '前端开发' })
-            // .set('X-API-Key', 'foobar')
-            // .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .end(function(err, res){
-                if (res.ok) {
-                    // console.log( JSON.stringify(res.body) );
-                    resData = resData.concat(res.body);
-                    // console.log(resData)
-                    // return resData;
-                    ep.emit('getCompanyData');
-                } else {
-                    console.log('Oh no! error ' + res.text);
-                }
-            });
-
-            */
-
-
         //单个get 请求
-       
         while (currentPage--) {
             superagent
                 .get("http://www.lagou.com/jobs/positionAjax.json")
@@ -99,9 +52,9 @@ var spider = {
                         resData = resData.concat(res.body );//res.body.content.positionResult.result
                         
                         // console.log(resData)
-                        
                         ep.emit('getCompanyData');
                         console.log(currentPage)
+                        
                         if (currentPage == 10) return false;
                         
                         
@@ -114,30 +67,6 @@ var spider = {
 
 
 
-        //循环获取
-/*            for (var currentPage = 1; currentPage <= pageNum ; currentPage++ ) {
-
-
-                superagent
-                    .post(pageRequest)
-                    .send({ pn: currentPage, kd: '前端开发' })
-                    // .set('X-API-Key', 'foobar')
-                    .set('Accept', 'application/json')
-                    .end(function(err, res){
-                        if (res.ok) {
-                            
-                            console.log( currentPage );
-                            resData = resData.concat(res.body.content.positionResult.result);
-                            // console.log(resData)
-                            // return resData;
-                            ep.emit('getCompanyData');
-                        } else {
-                            console.log('Oh no! error ' + res.text);
-                        }
-                    });
-
-            }*/
-
     },
     
     eventHandle: function (res) {
@@ -146,10 +75,7 @@ var spider = {
         ep.after('getCompanyData', 5 ,function(articleUrls){
             console.log("事件代理")
             // 当所有 'getCompanyData' 事件完成后的回调触发下面事件
-            // ...
-            // res.write('<br />');
-            // res.write('全部招聘数：   ' + pageRequestUrl.length*39 + '<br />' );
-            //
+
             res.end(JSON.stringify(resData));
             
         });
