@@ -3,9 +3,10 @@
  */
 
 //连接数据库
+
 var mongoose = require('mongoose');
 
-
+mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/lagou-spider');
 
 var db = mongoose.connection;
@@ -18,17 +19,18 @@ db.once('open', function () {
 
 //新建一个Schema  / 数据库原型
 var companySchema = mongoose.Schema({
+    companyFullName:String,
     positionId: Number,
     city: String,
     companySize: String,
     financeStage: String,
     salary : Number,
-    workYear: Number,
+    workYear: String,
     employmentKeyword: Array
 });
 
 //一个集合
-var Company = mongoose.model('Company', companySchema);
+var Company = mongoose.model('employeeInfo1', companySchema); //其中字符串为数据库集合名
 
 
 module.exports = Company;
