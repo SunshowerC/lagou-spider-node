@@ -21,15 +21,15 @@ var resData = [];//存储相应回来的数据
 
 
 
-var pageRequest = "http://www.lagou.com/jobs/positionAjax.json", //页数请求url
-    city = "北京",  //所在城市
-    job = "前端开发";
+var pageRequest = "http://www.lagou.com/jobs/positionAjax.json"; //页数请求url
+    // city = "北京",  //所在城市
+    // job = "前端开发";
 
 //标签必须小写
 var label = "性能,兼容,组件,响应式,架构,移动,手机,面向对象,数据库,博客,微信,数据结构,算法,svn,git,oop,mobile,webapp,gulp,grunt,webpack,http,canvas,svg,backbone,ember,angular,react,vue,node,bootstrap,jquery,ajax,sass,less,stylus,require,sea,photoshop,firework,php,python,mvc,mvvm,dom,json,xml,zepto,dojo,d3,underscore,seo,oracle,sql,mongodb".split(',');
 
 
-var pageArr = new Array(244), i = pageArr.length;  //爬取多少页
+var pageArr = new Array(250), i = pageArr.length;  //爬取多少页
 while (i--) {
     pageArr[i] = i + 1;
 }
@@ -37,6 +37,13 @@ while (i--) {
 
 var spiderPage = {
 
+    //设置参数
+    settings:function (opt) {
+        this.city = opt.city || "深圳";
+        this.job = opt.job || "前端开发";
+    },
+
+    //发送单次请求，测试用
     sendSingleReq:function (option,callback) {
         superagent
             .get(pageRequest)
@@ -58,10 +65,10 @@ var spiderPage = {
             .get(pageRequest)
             .query({
                 px: 'new',
-                city: city,
+                city: This.city,
                 needAddtionalResult: false,
                 pn: curPage,
-                kd: job
+                kd: This.job
             })
             .end(This.getCallbackData)
     },
@@ -80,7 +87,7 @@ var spiderPage = {
 
             var arr = [],
                 companyList = res.body.content.positionResult.result;
-
+            if (companyList.length == 0) return false;
             //处理数据
             companyList.forEach(function (item,index) {
                 var salary = item.salary.split('-');
@@ -152,7 +159,7 @@ var spiderPage = {
         //异步控制
         var reptileMove = function(curPage,callback){
             //延迟毫秒数(1000毫秒以内)
-            var delay = parseInt((Math.random() * 30000000) % 5000, 10);
+            var delay = parseInt((Math.random() * 30000000) % 4000 + 1000, 10);
             curCount++;
             
 
@@ -327,8 +334,10 @@ function start() {
             res.end(JSON.stringify(sres.body));
         });*/
 
-
-        /*
+/*
+        spiderPage.settings({
+   
+        });
         spiderPage.runSpider(res,function () {
             spiderPage.sendResponse(res);
             console.log("结束页数爬虫");
@@ -348,10 +357,10 @@ function start() {
                 });
             });
         });
-*/
+ */
         
         
-        
+        //爬取详情页招聘关键词        
         spiderLabel.getDetailUrl(function () {
             spiderLabel.run(res,function () {
 
