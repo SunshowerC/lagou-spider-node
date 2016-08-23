@@ -308,8 +308,7 @@ var spiderLabel = {
         });
     }
 
-
-
+    
 };
 
 

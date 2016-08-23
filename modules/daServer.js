@@ -15,15 +15,17 @@ function start() {
         var urlObj = url.parse(req.url, true);
         if (urlObj.pathname != "/analysis") return false;
 
-        da.getCityEmploymentNum(function (data) {
-            console.log(data);
-        });
+
         
         
         // 设置字符编码(去掉中文会乱码)
             res.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
         // res.writeHead(200, {'Content-Type': 'text/html;charset=utf-8'});  // text/html
-        res.end("成功");
+        
+        da.getCompanySizeSalary(function (data) {
+            res.end(JSON.stringify(data));
+            // console.log(data);
+        });
 
     }
 
