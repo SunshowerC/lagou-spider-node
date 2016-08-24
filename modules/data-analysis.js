@@ -74,12 +74,26 @@ function getCityEmploymentSalary(callback) {
                 }
             }], function (err, result) {
             // console.log(result);
+
+
             //将平均工资插入cityEmploymentSalary 数组
             result.forEach(function (item) {
                 cityEmploymentSalary[item._id].push(Math.round(item.aveSalary));
             });
 
-            callback(cityEmploymentSalary);
+
+            //将全国平均工资插入数据
+            CompanyModule.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        aveSalary: {$avg: "$salary"}
+                    }
+                }], function (err, result) {
+                cityEmploymentSalary['全国'].push(Math.round(result[0].aveSalary));
+                callback(cityEmploymentSalary);
+            })
+
         })
     })
 }
@@ -158,11 +172,11 @@ function getEmploymentLabel(callback) {
             });
 
     });
-    
-    ep.after('getEmploymentLabel',label.length,function () {
+
+    ep.after('getEmploymentLabel', label.length, function () {
         callback(labelCount);
     })
-    
+
 }
 
 
