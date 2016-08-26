@@ -5,32 +5,83 @@
     <title>数据可视化</title>
     <script src="http://echarts.baidu.com/build/dist/echarts-all.js"></script>
     <style>
-        .container {
-            margin-top:50px;
-            padding:30px;
+        body {
+            font-family: 'Microsoft Yahei', Helvetica, Arial, sans-serif; 
         }
+        .container {
+            margin-top: 50px;
+            padding: 30px;
+            text-align: center;
+        }
+
         .chartWrap {
-            height:500px;
-            max-width:1000px;
-            margin:50px auto;
+            height: 500px;
+            width: 900px;
+            margin: 10px auto;
             border: 1px solid #ddd;
-            padding:10px;
+            padding: 10px;
             box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 
         }
+
         #employmentLabel {
-            height:1300px;
+            height: 1300px;
         }
+
+        .title {
+            text-align: center;
+            color: #666;
+        }
+
+        section {
+            margin-bottom: 100px;
+        }
+
     </style>
 </head>
 <body>
+<h1 class="title">从拉勾网爬的招聘数据看前端人才发展与前景</h1>
 <div class="container">
-    <div id="cityEmployment" class="chartWrap" ></div>
-    <div id="cityEmploymentSalary" class="chartWrap" ></div>
-    <div id="companySizeSalary" class="chartWrap" ></div>
-    <div id="workYearSalary" class="chartWrap" ></div>
-    <div id="employmentLabel" class="chartWrap" ></div>
-    <div id="user-select" class="chartWrap" ></div>
+
+    <section>
+        <div id="cityEmployment" class="chartWrap"></div>
+        <h2>需求程度？</h2>
+        <p>从整体看，北上广深杭这五个城市前端工程师招聘岗位，北京是遥遥领先，其次到上海，深圳，杭州，广州居末。
+            大概可以看出整体互联网发展基调是 北 > 上 > 深 > 杭 > 广</p>
+    </section>
+
+    <section>
+        <div id="cityEmploymentSalary" class="chartWrap"></div>
+        <p></p>
+    </section>
+
+    <section>
+        <select name="city" id="company-size-city" title="城市选择">
+            <option value="全国">全国</option>
+            <option value="北京">北京</option>
+            <option value="上海">上海</option>
+            <option value="广州">广州</option>
+            <option value="深圳" selected>深圳</option>
+            <option value="杭州">杭州</option>
+        </select>
+        <div id="companySizeSalary" class="chartWrap"></div>
+    </section>
+
+    <section>
+        <select name="city" id="workYear-salary-city" title="城市选择">
+            <option value="全国">全国</option>
+            <option value="北京">北京</option>
+            <option value="上海">上海</option>
+            <option value="广州">广州</option>
+            <option value="深圳" selected>深圳</option>
+            <option value="杭州">杭州</option>
+        </select>
+        <div id="workYearSalary" class="chartWrap"></div>
+    </section>
+
+    <section>
+        <div id="employmentLabel" class="chartWrap"></div>
+    </section>
 
 </div>
 

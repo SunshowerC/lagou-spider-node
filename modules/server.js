@@ -332,16 +332,20 @@ function start() {
             console.log("send single request successfully");
             res.end(JSON.stringify(sres.body));
         });*/
+        var city = ['上海','广州','深圳','杭州']
 
-/*
+
         spiderPage.settings({
-   
+            city:item,
+            job:"产品经理"
         });
         spiderPage.runSpider(res,function () {
             spiderPage.sendResponse(res);
             console.log("结束页数爬虫");
-            
-            spiderLabel.getDetailUrl(function () {
+            if (index == 3) {
+                res.end();
+            }
+/*            spiderLabel.getDetailUrl(function () {
                 spiderLabel.run(res,function () {
 
                     spiderLabel.updateData();
@@ -354,12 +358,12 @@ function start() {
                     res.end();
                     console.log("结束爬虫")
                 });
-            });
+            });*/
         });
- */
+
+
         
-        
-        //爬取详情页招聘关键词        
+/*        //爬取详情页招聘关键词        
         spiderLabel.getDetailUrl(function () {
             spiderLabel.run(res,function () {
 
@@ -374,7 +378,7 @@ function start() {
 
             });   
         });
-        
+        */
     }
 
 

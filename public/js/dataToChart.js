@@ -8,12 +8,19 @@
         init: function () {
             var This = this;
             this.getAllData(function (data) {
-                This.renderPie('cityEmployment', data);
-                This.renderCitySalary('cityEmploymentSalary',data);
-                This.renderCompanySize('companySizeSalary',data);
-                This.renderWorkYearSalary('workYearSalary',data);
-                This.renderEmploymentLabel('employmentLabel',data);
-            })
+                This.renderPie('cityEmployment', data.cityEmploymentNum);
+                This.renderCitySalary('cityEmploymentSalary',data.cityEmploymentSalary);
+                This.renderCompanySize('companySizeSalary',data.companySizeSalary);
+                This.renderWorkYearSalary('workYearSalary',data.workYearSalary);
+                This.renderEmploymentLabel('employmentLabel',data.employmentLabel);
+
+                if (!sessionStorage.getItem("data")) {
+                    sessionStorage.setItem("data",JSON.stringify(data) );
+                }
+
+            });
+
+            this.bindEvent();
         },
 
         getAllData: function (callback) {
@@ -21,9 +28,10 @@
                 .done(callback);
         },
 
-        renderPie: function (id, data) {
+
+        renderPie: function (id, cityEmploymentNum) {
             var pieData = [];
-            var cityEmploymentNum = data.cityEmploymentNum;
+            // var cityEmploymentNum = data.cityEmploymentNum;
             for (var name in cityEmploymentNum) {
                 var obj = {};
                 obj.name = name;
@@ -88,9 +96,9 @@
             myChart.setOption(cityEmploymentNumOption);
         },
 
-        renderCitySalary : function (id, data) {
+        renderCitySalary : function (id, cityEmploymentSalary) {
 
-            var cityEmploymentSalary = data.cityEmploymentSalary;
+            // var cityEmploymentSalary = data.cityEmploymentSalary;
             delete  cityEmploymentSalary['全国'];
 
             var renderData = [[],[],[],[],[]],
@@ -185,18 +193,18 @@
             myChart.setOption(option);
         },
 
-        renderCompanySize : function (id, data) {
+        renderCompanySize : function (id, companySizeSalary,city) {
 
-            var city = '全国';
+            city = city || '深圳';
 
 
             var x = ['少于15人','50-150人','150-500人','500-2000人','2000人以上'];
-            var cityData = data.companySizeSalary[city];
+            var cityData = companySizeSalary[city];
 
             cityData.sort(function (a, b) {
                 return  a._id.localeCompare(b._id);
             });
-            console.log(cityData)
+
 
             var renderData = [[],[]];
             var sort = [5,0,3,1,4,2];
@@ -269,17 +277,18 @@
                 ]
             };
 
-            var myChart = echarts.init(document.getElementById(id));
+            var container = document.getElementById(id);
+            var myChart = echarts.init(container);
             myChart.setOption(option);
         },
 
-        renderWorkYearSalary : function (id, data) {
-
+        renderWorkYearSalary : function (id, workYearSalary,city) {
+            city = city || '深圳';
 
             var x = ['应届毕业生','1年以下','1-3年','3-5年','5-10年','不限'];
 
-            var city = '深圳';
-            var cityData = data.workYearSalary[city];
+
+            var cityData =  workYearSalary[city];
             cityData.sort(function (a, b) {
                 return  a._id.localeCompare(b._id);
             });
@@ -287,7 +296,9 @@
             var renderData = [[],[]];
             var sort = [5,1,0,2,3,4];
             //数据格式化
+
             for (var i = 0 ,len= cityData.length; i < len; i++) {
+
                 renderData[0].push( cityData[ sort[i] ].sum );
                 renderData[1].push( parseInt( cityData[ sort[i] ].aveSalary ) );
             }
@@ -354,14 +365,16 @@
                 ]
             };
 
-            var myChart = echarts.init(document.getElementById(id));
+            var container = document.getElementById(id);
+
+            var myChart = echarts.init(container);
             myChart.setOption(option);
         }, 
         
-        renderEmploymentLabel :function (id, data) {
+        renderEmploymentLabel :function (id, label) {
 
 
-            var label = data.employmentLabel;
+            // var label = data.employmentLabel;
             var renderData = [];
 
             for (var name in label) {
@@ -428,7 +441,27 @@
             var myChart = echarts.init(document.getElementById(id));
             myChart.setOption(option);
 
+        },
+
+        bindEvent: function () {
+            var This = this;
+
+            $('#company-size-city,#workYear-salary-city').on('change',function () {
+
+                var data = JSON.parse( sessionStorage.getItem('data') );
+
+                if (this.id == 'company-size-city') {
+                    This.renderCompanySize('companySizeSalary',data.companySizeSalary,this.value);
+                } else {
+                    This.renderWorkYearSalary('workYearSalary',data.workYearSalary,this.value);
+                }
+
+            });
+
         }
+
+
+
     };
 
 
