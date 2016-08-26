@@ -30,8 +30,9 @@ var companySchema = mongoose.Schema({
 });
 
 //一个集合
-var Company = mongoose.model('employeeInfo1', companySchema); //其中字符串为数据库集合名
-
+var Company = mongoose.model('employeeInfo1', companySchema); //其中字符串为数据库集合名-前端开发
+// var Company = mongoose.model('employee-product', companySchema); //其中字符串为数据库集合名-产品经理
+// var Company = mongoose.model('employee-android', companySchema); //其中字符串为数据库集合名-安卓开发
 
 module.exports = Company;
 

@@ -332,19 +332,32 @@ function start() {
             console.log("send single request successfully");
             res.end(JSON.stringify(sres.body));
         });*/
-        var city = ['上海','广州','深圳','杭州']
+        var city = ['北京','上海','广州','深圳','杭州'];
+
+        var i = 0;
+        iteration();
+        
+        function iteration() {
+            spiderPage.settings({
+                city:city[i++],
+                job:"android"
+            });
+            spiderPage.runSpider(res,function () {
+                spiderPage.sendResponse(res);
+                console.log(city[i-1]+" 结束页数爬虫");
+                if (i == 5) {
+                    setTimeout(function () {
+                        res.end();
+                        
+                    },3000);
+                } else {
+                    iteration()
+                }
+ 
+            });
+        }
 
 
-        spiderPage.settings({
-            city:item,
-            job:"产品经理"
-        });
-        spiderPage.runSpider(res,function () {
-            spiderPage.sendResponse(res);
-            console.log("结束页数爬虫");
-            if (index == 3) {
-                res.end();
-            }
 /*            spiderLabel.getDetailUrl(function () {
                 spiderLabel.run(res,function () {
 
@@ -359,7 +372,7 @@ function start() {
                     console.log("结束爬虫")
                 });
             });*/
-        });
+
 
 
         
