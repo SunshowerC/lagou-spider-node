@@ -76,7 +76,7 @@ var spiderPage = {
 
     //获取请求后返回的数据 并处理
     getCallbackData :function (err, res) {
-        var This = this;
+
         if (err) return console.error(err);
         if(!res) return false;
         if (res.ok) {
@@ -126,6 +126,10 @@ var spiderPage = {
 
     },
 
+    deleteWrongData:function () {
+        CompanyModule.remove({workYear:/\d$/ })
+            .exec();
+    },
 
     //启动，并控制请求并发数量
     run: function (res,callbackfunc) {
@@ -165,10 +169,11 @@ var spiderPage = {
             //pageArr 访问完成的回调函数
             //result 是经过callback 函数处理过的articleUrls ,此处为每个文章url 后面加字符串 'Call back content'
             console.log(result);
-
+            
+            This.deleteWrongData();
             //触发 “返回数据回前端”
             callbackfunc();
-
+            
             console.log("get all data done");
         });
     }
@@ -323,7 +328,7 @@ exports.startSpider = function (req,res) {
 
         spiderPage.run(res,function () {
             res.write("<br>" + settings.city[i-1]+" 结束页数爬虫<br>");
-            if (i == settings.city.length ) {
+            if (i == settings.city.length && settings.keyword) {
                 setTimeout(function () {
                     runSpiderLabel();
                 },3000);
