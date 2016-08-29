@@ -1,8 +1,8 @@
 {
-  "name": "lagou-spider-node",
+  "name": "lagou-spider",
   "version": "1.0.0",
-  "description": "lagou.com spider",
-  "main": "app.js",
+  "description": "lagou-spider",
+  "main": "spider-app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,9 +11,11 @@
     "url": "git+https://github.com/Weiyu-Chen/lagou-spider-node.git"
   },
   "keywords": [
-    "spider"
+    "lagou",
+    "spider",
+    "node"
   ],
-  "author": "chen",
+  "author": "Chen Weiyu",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Weiyu-Chen/lagou-spider-node/issues"
@@ -21,10 +23,10 @@
   "homepage": "https://github.com/Weiyu-Chen/lagou-spider-node#readme",
   "dependencies": {
     "async": "^2.0.1",
-    "cheerio": "^0.20.0",
+    "cheerio": "^0.22.0",
     "eventproxy": "^0.3.5",
-    "iconv-lite": "^0.4.13",
-    "mongoose": "^4.5.9",
+    "express": "^4.14.0",
+    "mongoose": "^4.5.10",
     "superagent": "^2.2.0"
   }
 }
