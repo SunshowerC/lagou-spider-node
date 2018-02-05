@@ -5,8 +5,8 @@
  */
 
 var spiderServer = require('./models/spider-server');
-
-
+var spiderJSON = require('./models/spiderJSON');
+var spiderHTML = require('./models/spiderHTML');
 
 var express = require('express');
 var app = express();
@@ -14,6 +14,18 @@ var app = express();
 
 //  启动爬虫，在前端页面展示爬虫进度
 app.get('/spider',spiderServer.startSpider);
+
+app.get('/start', (req, res)=>{
+    res.writeHead(200, {'Content-Type': 'text/html;charset=utf-8' });               // text/html
+
+ // spiderHTML.start(req, res)
+    spiderJSON.start(req, res)
+    .then(() => {
+        spiderHTML.start(req, res)
+    })
+
+});
+
 var server = app.listen(3000, function () {
     var host = server.address().address;
     var port = server.address().port;

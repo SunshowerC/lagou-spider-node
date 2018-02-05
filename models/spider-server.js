@@ -20,8 +20,8 @@ var CompanyModule = require('./db'); //数据库集合
 var idAndKeyword = {} ;  //存放职位详情页id 和 职位关键词 idAndKeyword.id = keyword
 var detailUrlId = [];  //存放职位详情页url
 
-var pageRequest = "http://www.lagou.com/jobs/positionAjax.json"; //页数请求url
-
+// var pageRequest = "http://www.lagou.com/jobs/positionAjax.json"; //页数请求url
+var pageRequest = "http://m.lagou.com/search.json"
 
 //标签必须小写
  
@@ -32,10 +32,11 @@ var pageArr = new Array(pages), i = pages;  //存储每一页对应的id, 生成
 while (i--) {
     pageArr[i] = i + 1;
 }
-
+var stopFlag = false;
 
 // spiderPage通过"http://www.lagou.com/jobs/positionAjax.json"爬取招聘职位详情
 var spiderPage = {
+    stop: false,
 
     //设置参数
     settings:function (opt) {
@@ -65,25 +66,33 @@ var spiderPage = {
         superagent
             .get(pageRequest)
             .query({
-                px: 'new',
                 city: This.city,
-                needAddtionalResult: false,
-                pn: curPage,
-                kd: This.job
+                // needAddtionalResult: false,
+                pageNo: curPage,
+                positionName: This.job
+ 
             })
             .end(This.getCallbackData)
+
     },
 
     //获取请求后返回的数据 并处理
     getCallbackData :function (err, res) {
-
+        var This = this;
         if (err) return console.error(err);
         if(!res) return false;
         if (res.ok) {
             
             var arr = [],
-                companyList = res.body.content.positionResult.result;
-            if (companyList.length == 0) return false;
+                companyList = res.body.content.data.page.result;
+                // companyList = res.body.content.positionResult.result;
+            if (companyList.length == 0) {
+                stopFlag = true;
+                return false;
+            }
+            
+            
+
             //处理数据
             companyList.forEach(function (item,index) {
                 var salary = item.salary.split('-');
@@ -96,10 +105,11 @@ var spiderPage = {
                     companyFullName: item.companyFullName,
                     positionId : item.positionId ,
                     city:item.city ,
-                    companySize:item.companySize ,
-                    financeStage:item.financeStage ,
+                    field: '',
+                    companySize:'',
+                    financeStage:'' ,
                     salary:aveSalary ,
-                    workYear:item.workYear ,
+                    workYear:'' ,
                     employmentKeyword:  []
                 }
 
@@ -117,7 +127,7 @@ var spiderPage = {
     saveData: function (companyList) {
 
         CompanyModule.create(companyList,function (err,product) {
-            console.log(product);
+            // console.log(product);
             if (err) return console.error(err);
             // console.log(product);
             console.log("save data to database successfully")
@@ -147,7 +157,11 @@ var spiderPage = {
             // res.write( "第" + (count++) + "页数据 " + " 正在抓取" +  + '<br />');
 
             // 发送请求
-            This.sendRequest(curPage);
+            if (stopFlag) {
+                delay = 0;
+            } else {
+                This.sendRequest(curPage);
+            }
 
             setTimeout(function() {
                 // console.log('现在的并发数是', curCount, '，正在抓取的是', curPage, '，耗时' + delay + '毫秒');
@@ -163,7 +177,10 @@ var spiderPage = {
         // 异步回调
         // pageArr-{array}-全部页数数组; curPage-当前页数
         async.mapLimit(pageArr, concurrent ,function (curPage, callback) {
-            reptileMove(curPage, callback);
+            console.log(stopFlag);
+            
+                reptileMove(curPage, callback);    
+            
         }, function (err,result) {
 
             //pageArr 访问完成的回调函数
@@ -226,11 +243,11 @@ var spiderLabel = {
         var employmentKeyword =  idAndKeyword[curId] = [];
 
 
-        settings.keyword.forEach(function (item) {
+        /*settings.keyword.forEach(function (item) {
             if (text.indexOf(item) >= 0 ) {
                 employmentKeyword.push(item);
             }
-        })
+        })*/
 
     },
 
@@ -239,8 +256,10 @@ var spiderLabel = {
 
         for (id in idAndKeyword) {
             if( !idAndKeyword.hasOwnProperty(id) ) continue;
-            CompanyModule.findOneAndUpdate({positionId: id },{employmentKeyword: idAndKeyword[id] }, function (err,result) {
-                console.log(result);
+            CompanyModule.findOneAndUpdate({positionId: id },{
+                employmentKeyword: idAndKeyword[id] 
+            }, function (err,result) {
+                // console.log(result);
             } )
         }
 
@@ -321,16 +340,18 @@ exports.startSpider = function (req,res) {
     }
 
     function iteration() {
+        stopFlag = false;
+
         spiderPage.settings({
             city:settings.city[i++],
             job:settings.job
         });
 
         spiderPage.run(res,function () {
-            res.write("<br>" + settings.city[i-1]+" 结束页数爬虫<br>");
+            res.write("" + settings.city[i-1]+" 结束页数爬虫<br><br>");
             if (i == settings.city.length && settings.keyword) {
                 setTimeout(function () {
-                    runSpiderLabel();
+                    // runSpiderLabel();
                 },3000);
             } else {
                 iteration()
