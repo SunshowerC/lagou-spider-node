@@ -1,33 +1,53 @@
 
-var http = require("http"),
+let http = require("http"),
     url = require("url"),
     superagent = require("superagent"),
     cheerio = require("cheerio"),
-    async = require("async"),
     settings = require("../settings"),
     eventproxy = require('eventproxy');
 
+let proxy = require('./proxy');
 let CompanyModule = require('./db'); //数据库集合
 let mapLimit = require('./mapLimit')
 
 
+require('superagent-proxy')(superagent);
+
 let spiderHTML = {
 
-
-    request({requestUrl, jobId}) {
+    request({requestUrl, jobId, proxyIp=''} ) {
         return new Promise((resolve,reject)=>{
-            superagent
-                .get(requestUrl)
-                .set({
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-                    'Referrer': 'www.baidu.com',
-                    'Cookie': 'user_trace_token=20180202001832-dcad9599-14c0-4b25-bcc2-8ba67f639f3f; LGUID=20180202002853-fe2031db-076c-11e8-a513-525400f775ce; index_location_city=%E5%85%A8%E5%9B%BD; JSESSIONID=ABAAABAAAGCABCC98D2F64D702FE7808D50FC7C2D7C7499; _gat=1; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=https%3A%2F%2Fm.lagou.com%2Fjobs%2F4084618.html; _ga=GA1.2.1712563544.1517502531; _gid=GA1.2.1849429623.1517760673; _ga=GA1.3.1712563544.1517502531; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1517502531,1517669062; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1517760904; X_HTTP_TOKEN=aa7662a1b25a7e589baca1ab2dc650de; LGSID=20180205000759-91e0941c-09c5-11e8-aec8-5254005c3644; LGRID=20180205001508-91857e49-09c6-11e8-aed0-5254005c3644'
+            (()=>{
+                if (proxyIp) {
+                    const TIMEOUT = 15000;
+                    let url = 'http://m.lagou.com/jobs/3776097.html'
+                    return superagent.get(url)
+                            .timeout(TIMEOUT)
+                            .proxy(proxyIp)
+                    return superagent.get(requestUrl).timeout(15000).proxy(proxyIp)
+                } else {
+                    return superagent.get(requestUrl)
+                }
+            })()
+            .set({
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Encoding': 'gzip, deflate',
+                    'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
+                     'Cookie': `user_trace_token=20180202001832-dcad9599-14c0-4b25-bcc2-8ba67f639f3f; LGUID=20180202002853-fe2031db-076c-11e8-a513-525400f775ce; index_location_city=%E5%85%A8%E5%9B%BD; _ga=GA1.3.1712563544.1517502531; _ga=GA1.2.1712563544.1517502531; JSESSIONID=ABAAABAAAGCABCC2FBAF68CBF38E732BFA063C3E925D6B9; _gid=GA1.2.878231416.1519828998; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1517502531,1517669062,1519828999; _gat=1; LGSID=20180301000823-99db587e-1ca1-11e8-b106-5254005c3644; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=http%3A%2F%2Fm.lagou.com%2Fjobs%2F3776097.html; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1519834112; LGRID=20180301000834-a0974950-1ca1-11e8-b106-5254005c3644`
 
                 })
                 .end((err, res)=>{
-                    if (err || !res || !res.ok) {
-                        console.error(err);
-                        reject('request failed!')
+                    if (err ) {
+                        // console.error(err);
+                        // console.log(`request failed!`, err )
+
+                        console.log(`proxyIp`,proxyIp, `requestUrl`, requestUrl )
+                        reject({
+                            code: -1,
+                            msg: 'request failed!',
+                            jobId
+                        })
                     } else {
                         resolve({res, jobId})
                     } 
@@ -42,9 +62,6 @@ let spiderHTML = {
         let jobRequest = $('.job_request > p');
         let companyInfo = $('.c_feature');
         
-// console.log(companyInfo.get(0).innerText)
-// console.log(companyInfo[0].innerText)
-// console.log(companyInfo[0].text())
 
 /*        let workYear = jobRequest.find('span:nth-child(3)').text().slice(0,-1).trim(),
             qualification = jobRequest.find('span:nth-child(4)').text().slice(0,-1).trim(),
@@ -56,15 +73,17 @@ let spiderHTML = {
             field = $('#content > div.company.activeable > div > div > p').text().trim().split(/\s*\/\s*/)[0]
             companySize = $('#content > div.company.activeable > div > div > p').text().trim().split(/\s*\/\s*/)[2];
 
-        console.log('info',
+        let infoList = $('#content > div.company.activeable > div > div').html();
+        console.log(res.text)   
+        /*console.log('info',
             [workYear,
             qualification,
             field,
-            companySize].join(' | '));
+            companySize].join(' | '));*/
 
             if ( !(workYear || qualification || field || companySize) ) {
-                console.log(res.text)
-                return Promise.reject('wrong response!');
+                // console.log(res.text)
+                return Promise.reject({code:-1, msg:'wrong response!', jobId});
             }
         /*console.log('info',
             jobRequest.find('span:nth-child(3)').text(),
@@ -93,7 +112,7 @@ let spiderHTML = {
                     console.error(err)
                     reject(err);
                 } else {
-                    console.log(id, "save data to database successfully" )
+                    console.log( "save data to database successfully", result )
                     resolve("save data to database successfully")
                 }
             })  
@@ -110,9 +129,25 @@ let spiderHTML = {
 }
 
 
+
+let sleep = (time) => {
+    return new Promise(resolve => {
+        setTimeout(resolve, time)
+    })
+}
+
+
+/* 获取招聘岗位id */
 let getJobIds = () => {
     return new Promise((resolve, reject)=>{
-        CompanyModule.find({companySize: ''},{"positionId":1,_id:0},function (err,result) {
+        CompanyModule.find({
+            companySize: '', 
+            workYear:'',
+            field: '',
+            qualification: ''
+
+        },
+            {"positionId":1,_id:0},function (err,result) {
             if(err) {
                 console.log('fail to get id list')
                 return reject(err)
@@ -129,39 +164,62 @@ let getJobIds = () => {
 
 
 exports.start = (req, res) => {
-    let count = 0;
-    let runningRequestNum = 0;
+    let limit = 5; // 并发限制数
+    let count = 0; // 累计爬取数据计数
+    let runningRequestNum = 0; // 当前并发数
+ 
+
     return getJobIds()
     .then(ids => {
         res.write(`共${ids.length}项。<br>`)
-        mapLimit(ids, 2, (jobId)=>{
-            return new Promise((resolve, reject)=>{
 
-                let delay = parseInt(Math.random() * 5000 + 10000, 10);
-                // let requestUrl = "https://www.lagou.com/jobs/" + jobId + ".html" ;
-                let requestUrl = `https://m.lagou.com/jobs/${jobId}.html` ;
-                
-                runningRequestNum++
-                setTimeout(()=>{
+        // proxy.getValidIps([ 'http://112.27.129.54:3128']);
 
-                    spiderHTML.run({
-                        requestUrl,
-                        jobId
-                    }).then(result => {
-                        res.write(`${count++}：正在抓取的是 ${requestUrl}，耗时 ${delay} 毫秒，当前并发数
-                        ${runningRequestNum--}<br>`);
-                        resolve(result)   
-                    }).catch(reject)
+        mapLimit(ids, limit, async (jobId)=>{
+            let delay = parseInt(Math.random() * 2000);
+            // let requestUrl = "https://www.lagou.com/jobs/" + jobId + ".html" ;
+            let requestUrl = `http://m.lagou.com/jobs/${jobId}.html` ;
+            runningRequestNum++
 
-                }, delay)
-            })
+            await sleep(delay);
+            
+            count++
+            let proxyIp = await proxy.getOneValidIp(count);
+
+            // proxyIp =  'http://123.207.150.111:8888'
+ 
+           
+            let result = await spiderHTML.run({
+                            requestUrl,
+                            jobId,
+                            proxyIp
+                        }).catch(e =>{
+                            if ( e.code === -1 ){
+                                proxy.removeInvalidIp(count);
+
+                                return e;
+                            }
+                        })
+            
+            if (result.code === -1 ) {
+                res.write(`jobId: ${result.jobId}; msg:${result.msg}, proxyIp：${proxyIp}<br>`)
+            } else {
+                res.write(`${count}：当前并发数${runningRequestNum}。正在使用代理 ${proxyIp} 抓取的是 ${requestUrl}，耗时 ${delay} 毫秒，<br>`);    
+            }
+            runningRequestNum--
+            
+            return result;
         }).then(result => {
             console.log(result)
             res.write(JSON.stringify(result));   
-            res.send(`<br><br><br><br>`);           
+            res.write(`<br><br><br><br>`);           
         }).catch(e => {
             console.log(e);
             res.write(JSON.stringify(e))
+            /* 本次爬取失败，ip 可能失效，将其从动态ip池移除 */
         })
+
+
+ 
     })
 }

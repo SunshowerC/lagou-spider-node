@@ -66,6 +66,7 @@ let spider = {
                 // financeStage:'' ,
                 salary:aveSalary ,
                 workYear:'' ,
+                qualification: '',
                 // employmentKeyword:  []
             }
         });
@@ -84,7 +85,7 @@ let spider = {
                 } else {
                     resolve("save data to database successfully")
                 }
-                // console.log(product);
+                
             })    
         })
     },

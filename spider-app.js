@@ -4,7 +4,6 @@
  * Time : 15:07
  */
 
-var spiderServer = require('./models/spider-server');
 var spiderJSON = require('./models/spiderJSON');
 var spiderHTML = require('./models/spiderHTML');
 
@@ -13,16 +12,16 @@ var app = express();
 
 
 //  启动爬虫，在前端页面展示爬虫进度
-app.get('/spider',spiderServer.startSpider);
 
 app.get('/start', (req, res)=>{
     res.writeHead(200, {'Content-Type': 'text/html;charset=utf-8' });               // text/html
 
- // spiderHTML.start(req, res)
-    spiderJSON.start(req, res)
+ spiderHTML.start(req, res)
+/*    spiderJSON.start(req, res)
     .then(() => {
-        spiderHTML.start(req, res)
-    })
+        res.write(`<br>职位列表爬取完毕<br>`)
+        // spiderHTML.start(req, res)
+    })*/
 
 });
 

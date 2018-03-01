@@ -29,6 +29,7 @@
     "mongoose": "^4.5.10",
     "mysql2": "^1.5.1",
     "sequelize": "^4.32.2",
-    "superagent": "^2.2.0"
+    "superagent": "^2.2.0",
+    "superagent-proxy": "^1.0.2"
   }
 }
