@@ -6,7 +6,10 @@
  */
 
 const mapLimit = (list, limit, asyncHandle) => {
-    let listCopy = [].concat(list);
+    // let listCopy = [].concat(list);
+    let listCopy = list;
+    limit = limit < listCopy.length ? limit : listCopy.length;
+
     let asyncList = [];
     let recursion = (arr) => {
         return asyncHandle(arr.shift(), arr)

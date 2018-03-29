@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>招聘分析</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <style>
+        body {
+            font-family: 'Microsoft Yahei', Helvetica, Arial, sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .chartWrap {
+            height: 500px;
+            width: 900px;
+            margin: 10px auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+
+        }
+
+        #employmentLabel {
+            height: 1300px;
+        }
+
+        .title {
+            text-align: center;
+            color: #666;
+        }
+
+        .chart-item {
+            margin-bottom: 100px;
+        }
+
+        .chart-item p,.describe p {
+            margin: 0 auto;
+            width: 900px;
+            text-align: left;
+            font-size: 20px;
+            text-indent: 2em;
+        }
+        
+        .chart-item h2 {
+            color: #888;
+        }
+
+        .chart-item ul {
+            width:900px;
+            margin: 20px auto;
+            text-align: left;
+            font-size:18px;
+        }
+
+        select {
+            font-size: 20px;
+            padding: 1px 10px;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<header class="describe">
+    <h1 class="title">从拉勾网爬的招聘数据看前端人才发展与前景</h1>
+    
+    <p>node爬虫：<a href="https://github.com/Weiyu-Chen/lagou-spider-node" target="_blank">https://github.com/Weiyu-Chen/lagou-spider
+        -node</a></p>
+
+    <p>样本：北上广深杭这五个城市，这一个多月发布的且尚未关闭的，总共<strong id="count"></strong>个招聘职位。</p>
+    <p>本次爬虫取这五个城市的样本作为分析基础，以及下文中的全国，均指代这五个城市之和。</p>
+</header>
+
+<div class="container">
+    <section class="chart-item">
+        <h2>前端人才需求程度</h2>
+        <div id="cityEmployment" class="chartWrap"></div>
+        <p>从整体看，北上广深杭这五个城市前端工程师招聘岗位，北京是遥遥领先，是深圳的两倍，是广州的三倍，其次到上海，深圳，杭州，广州居末。</p>
+        <p>从需求量大概可以看出，整体互联网产业发达程度是 北 > 上 > 深 > 杭 > 广</p>
+    </section>
+
+    <section class="chart-item">
+        <h2>不同城市提供的薪酬待遇区别</h2>
+        <div id="cityEmploymentSalary" class="chartWrap"></div>
+        <p>由平均工资曲线图可以看到，每隔2K算一档的话，北京一档，上海一档，杭州深圳一档，<strong>空一档</strong>，广州吊车尾，杭州竟然比深圳高了300，这就代表着深圳虽然招聘需求比杭州大，但两者薪酬待遇其实差不多。</p>
+        <br>    
+        <p>从不同薪酬的招聘数量也能看出一些很大的区别，招聘提供薪资水平中，普遍数量最多的是10k-20k这个水平，但，<strong>北京牛逼，招聘岗位60%以上都是20K以上的</strong>。我们具体来看看，各个城市对高端人才（提供薪酬20k以上）的招聘比例，那就可以看出明显区别了：
+        </p>
+        <ul>
+            <li>北京：招聘的薪资水平是"20k以上",大概是招聘总数的59.7%</li>
+            <li>上海：招聘的薪资水平是"20k以上",大概是招聘总数的41.3%</li>
+            <li>深圳：招聘的薪资水平是"20k以上",大概是招聘总数的29.2%</li>
+            <li>杭州：招聘的薪资水平是"20k以上",大概是招聘总数的30.4%，和深圳相差不大</li>
+            <li>广州：招聘的薪资水平是"20k以上",大概是招聘总数的……10.4%。</li>
+        </ul>
+    </section>
+
+    <section class="chart-item">
+        <h2>公司规模大小对薪酬的影响</h2>
+        <select name="city" id="company-size-city" title="城市选择">
+            <option value="全国" selected>全国</option>
+            <option value="北京">北京</option>
+            <option value="上海">上海</option>
+            <option value="广州">广州</option>
+            <option value="深圳" >深圳</option>
+            <option value="杭州">杭州</option>
+
+        </select>
+        <div id="companySizeSalary" class="chartWrap"></div>
+        <p>基本可以看到一个明显的趋势，公司规模越大，能提供的薪酬越高，不差钱。</p>
+        <p>另外，从不同规模的公司的前端招聘数量来看，<strong>北京又一枝独秀</strong>，大公司招聘需求很高啊。</p>
+        <p>但从全国来看，不同规模的公司（除了15人以下的）招聘数量基本在同一水平，基本说明：大公司少，但是每个公司招聘的人多；小公司多，但是每个公司招聘的人少。<del>好像这是句废话</del>
+        </p>
+    </section>
+
+    <section class="chart-item">
+        <h2>公司对前端攻城狮工作资历的要求</h2>
+        <select name="city" id="workYear-salary-city" title="城市选择">
+            <option value="全国" selected>全国</option>
+            <option value="北京">北京</option>
+            <option value="上海">上海</option>
+            <option value="广州">广州</option>
+            <option value="深圳">深圳</option>
+            <option value="杭州">杭州</option>
+
+
+        </select>
+        <div id="workYearSalary" class="chartWrap"></div>
+
+        <p>从图上看，工作经历在1-5年的现在需求最旺盛，并且理所当然地，工作资历越高，薪资越高。</p>
+        <p>其中3-5年的最吃香，广州有点奇怪，1-3年的最吃香？综合上面的多项数据，感觉像是1-3年工资比3-5年低所以广州互联网公司多招1-3年</p>
+        <p>当然，这里存在这一个幸存者偏差，拉勾上大部分的都是社招性质的招聘，而应届生和1年经验的大部分都跑校招去了吧，所以数量低也不出奇。</p>
+    </section>
+ 
+
+    <section class="chart-item">
+        <h2>公司领域对应的需求与薪酬待遇</h2>
+
+        <div id="fieldSalary" class="chartWrap"></div>
+
+        <p>移动互联网占据了大半壁江山，剩下之中，金融，电子商务，企业服务，数据服务在同一层次。另外，物联网，智能硬件各有一招聘岗位，薪酬都是5K...嗯虽说node现在也可以做物联网了(还别说，我还真的用node搞过硬件串口通信Orz)，但是终究不是主流技术，数据展示表明，前端基本与硬件绝缘。</p>
+        <p>薪酬待遇倒是都在同一水平上，“大数据”工资倒是一枝独秀，但是数据量太少，参考价值不大。</p>
+    </section>
+
+    <section>
+        <h3 >总结：北京钱多机会多当之无愧第一档；上海稍逊一筹；杭州深圳又低一筹；广州真的是差了两个身位。</h3>
+        <h3>而对于前端来说，北京 移动互联网 大公司，钱多！坑多！速来！</h3>
+    </section>
+</div>
+
+</div>
+
+
+<script src=" http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+<script src="./data/frontends.js"></script>
+<script src="./data/cpps.js"></script>
+<script src="./data/javas.js"></script>
+<script src="./data/phps.js"></script>
+<script src="./data/pythons.js"></script>
+
+<script>
+    // let originData = frontends;
+    // let originData = javas;
+    // let originData = cpps;
+    // let originData = phps;
+    let originData = pythons;
+</script>
+<script src="js/echarts.js"></script>
+<script src="js/show-chart.js"></script>
+<script>
+    (function () {
+        chartModule.init();
+    })()
+
+</script>
+</body>
+
+
+</html>

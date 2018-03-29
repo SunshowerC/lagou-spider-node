@@ -4,9 +4,9 @@ let cheerio = require("cheerio");
 
 
 let proxyListUrl = 'http://www.66ip.cn/mo.php?sxb=&tqsl=20&port=&export=&ktip=&sxa=%B5%E7%D0%C5&submit=%CC%E1++%C8%A1&textarea=http%3A%2F%2Fwww.66ip.cn%2F%3Fsxb%3D%26tqsl%3D20%26ports%255B%255D2%3D%26ktip%3D%26sxa%3D%25B5%25E7%25D0%25C5%26radio%3Dradio%26submit%3D%25CC%25E1%2B%2B%25C8%25A1';
-proxyListUrl = 'https://proxy-spider.com/'
 proxyListUrl = `https://www.us-proxy.org/`
 
+proxyListUrl = `http://www.89ip.cn/apijk/?&tqsl=600&sxa=&sxb=&tta=&ports=&ktip=&cf=1`
 
 
 let proxy = {
@@ -14,12 +14,14 @@ let proxy = {
 
 
     MIN_IP_NUM: 10, // 至少要 MIN_IP_NUM 个 IP
+    isRunning: false, // 是否正在从proxyListUrl获取ips，同一时间理应只有一个getProxyIps在跑
 
     getProxyIps() {
+        this.isRunning = true;
         return new Promise((resolve, reject) => {
-            console.log(`getting ips from ${proxyListUrl}`)
+            console.log(`getting ips from ${proxyListUrl }`)
             superagent
-                .get(proxyListUrl)
+                .get(proxyListUrl )
                 .set({
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                     'Accept-Encoding': 'gzip, deflate',
@@ -29,14 +31,20 @@ let proxy = {
                 })
                 .end((err, res) => {
                     if (err || !res || !res.ok) {
-                        console.error(err);
+                        console.error('get proxy list failed!', err);
                         reject('get proxy list failed!')
                     } else {
                         var $ = cheerio.load(res.text);
                         // console.log(`ip table`, $('#list').text())
                         /*let proxyList = $('.table.float-left').text().match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,4}/g);*/
-                        let proxyList = $('#proxylisttable').html().replace(/<\/td>\s*<td>/g, ':').match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,4}/g);
+
+                        // https://www.us-proxy.org/    $('#proxylisttable')
+                        // let proxyList = $('#proxylisttable').html().replace(/<\/td>\s*<td>/g, ':').match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,4}/g);
                         
+
+                        let proxyList = res.text.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,4}/g);
+
+
                         if (!proxyList) {
                             proxyList = [];
                             // console.log(res.text)
@@ -100,6 +108,7 @@ let proxy = {
                 
                 this.ips.push(...result);
                 this.ips = Array.from( new Set(this.ips) )
+                this.isRunning = false;
 
                 console.log('ips.length', this.ips.length, 'result', result)
 
@@ -107,23 +116,32 @@ let proxy = {
             })
     },
 
-    removeInvalidIp(index) {
-        this.ips.splice(index % this.ips.length, 1);
+    removeInvalidIp(ip) {
+        let index = this.ips.indexOf(ip);
+        index > -1 && this.ips.splice(index, 1);
     },
 
     /* 从ip池中取出一个ip */
     getOneValidIp(index=0) {
         
         return (async ()=>{
-            // while(this.ips.length < this.MIN_IP_NUM) {
-            //     await this.filterValidIps()
-            // }
-            if (this.ips.length < this.MIN_IP_NUM) {
-                await this.filterValidIps()    
+            if (this.isRunning && this.ips.length !== 0) {
+                return this.ips[index % this.ips.length ];
             }
+            while(this.ips.length < this.MIN_IP_NUM) {
+                await this.filterValidIps()
+                        .catch(e => {
+                            return console.log(`caught by getOneVaildIp`, e)
+                        })
+            }
+            // if (this.ips.length < this.MIN_IP_NUM) {
+            //     await this.filterValidIps()    
+            // }
+
+
             let len = this.ips.length;
             console.log(`proxyIpLen`, len)
-            return this.ips[index % len];
+            return this.ips[index % len ];
         })()
          
     }

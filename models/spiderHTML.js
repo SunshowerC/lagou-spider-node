@@ -10,6 +10,7 @@ let proxy = require('./proxy');
 let CompanyModule = require('./db'); //数据库集合
 let mapLimit = require('./mapLimit')
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 require('superagent-proxy')(superagent);
 
@@ -20,21 +21,26 @@ let spiderHTML = {
             (()=>{
                 if (proxyIp) {
                     const TIMEOUT = 15000;
-                    let url = 'http://m.lagou.com/jobs/3776097.html'
-                    return superagent.get(url)
+                    // requestUrl = 'http://m.lagou.com/jobs/3776097.html'
+                    return superagent.get(requestUrl)
                             .timeout(TIMEOUT)
                             .proxy(proxyIp)
-                    return superagent.get(requestUrl).timeout(15000).proxy(proxyIp)
-                } else {
+                } else {    
                     return superagent.get(requestUrl)
                 }
             })()
             .set({
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Encoding': 'gzip, deflate',
-                    'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36',
-                     'Cookie': `user_trace_token=20180202001832-dcad9599-14c0-4b25-bcc2-8ba67f639f3f; LGUID=20180202002853-fe2031db-076c-11e8-a513-525400f775ce; index_location_city=%E5%85%A8%E5%9B%BD; _ga=GA1.3.1712563544.1517502531; _ga=GA1.2.1712563544.1517502531; JSESSIONID=ABAAABAAAGCABCC2FBAF68CBF38E732BFA063C3E925D6B9; _gid=GA1.2.878231416.1519828998; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1517502531,1517669062,1519828999; _gat=1; LGSID=20180301000823-99db587e-1ca1-11e8-b106-5254005c3644; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=http%3A%2F%2Fm.lagou.com%2Fjobs%2F3776097.html; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1519834112; LGRID=20180301000834-a0974950-1ca1-11e8-b106-5254005c3644`
+'Connection': 'keep-alive',
+'Host': 'www.lagou.com',
+'Connection': 'keep-alive',
+'Cache-Control': 'max-age=0',
+'Upgrade-Insecure-Requests': '1',
+'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
+'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+'Referer': 'https://www.lagou.com/',
+'Accept-Encoding': 'gzip, deflate, sdch, br',
+'Accept-Language': 'zh-CN,zh;q=0.8',
+/*'Cookie': 'user_trace_token=20180129234926-fbca3d2c-050b-11e8-abd5-5254005c3644; LGUID=20180129234926-fbca4005-050b-11e8-abd5-5254005c3644; index_location_city=%E5%85%A8%E5%9B%BD; JSESSIONID=ABAAABAAADEAAFI7408DB57C16ACD2B65A3622981237C6F; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=https%3A%2F%2Fwww.lagou.com%2Fjobs%2F3776097.html; TG-TRACK-CODE=index_hotjob; _gid=GA1.2.873716699.1520171079; _ga=GA1.2.2019647264.1517240965; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1517664816,1518102544,1520171079; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1520177925; LGSID=20180304232704-7e10d80b-1fc0-11e8-9c55-525400f775ce; LGRID=20180304233844-1f80c464-1fc2-11e8-9c58-525400f775ce',*/
 
                 })
                 .end((err, res)=>{
@@ -55,34 +61,23 @@ let spiderHTML = {
         })
     },
     handleCallbackData({res, jobId}) {
-
         var $ = cheerio.load(res.text);
-
-       
-        let jobRequest = $('.job_request > p');
-        let companyInfo = $('.c_feature');
-        
-
-/*        let workYear = jobRequest.find('span:nth-child(3)').text().slice(0,-1).trim(),
-            qualification = jobRequest.find('span:nth-child(4)').text().slice(0,-1).trim(),
-            field = companyInfo.find('li:nth-child(1)').text().split(/\s+/)[1],
-            // financeStage = companyInfo.find('li:nth-child(2)').text().split(/\s+/)[1],
-            companySize = companyInfo.find('li:nth-child(3)').text().split(/\s+/)[1];*/
+ 
         let workYear = $('#content > div.detail > div.items > span.item.workyear > span').text(),
             qualification = $('#content > div.detail > div.items > span.item.education').text().trim(),
             field = $('#content > div.company.activeable > div > div > p').text().trim().split(/\s*\/\s*/)[0]
             companySize = $('#content > div.company.activeable > div > div > p').text().trim().split(/\s*\/\s*/)[2];
 
-        let infoList = $('#content > div.company.activeable > div > div').html();
-        console.log(res.text)   
-        /*console.log('info',
+
+        console.log('info',
             [workYear,
             qualification,
             field,
-            companySize].join(' | '));*/
+            companySize].join(' | '));
 
+            /* 如果这四项数据都没有提取到，很有可能是被拉勾的反爬虫机制拦截了 */
             if ( !(workYear || qualification || field || companySize) ) {
-                // console.log(res.text)
+                console.log(res.text)
                 return Promise.reject({code:-1, msg:'wrong response!', jobId});
             }
         /*console.log('info',
@@ -109,10 +104,10 @@ let spiderHTML = {
             CompanyModule.findOneAndUpdate({positionId: id }, jobInfo, 
                 (err,result) => {
                 if (err) {
-                    console.error(err)
+                    console.error('save error', err)
                     reject(err);
                 } else {
-                    console.log( "save data to database successfully", result )
+                    console.log( "成功保存数据到数据库", result.positionId )
                     resolve("save data to database successfully")
                 }
             })  
@@ -167,44 +162,51 @@ exports.start = (req, res) => {
     let limit = 5; // 并发限制数
     let count = 0; // 累计爬取数据计数
     let runningRequestNum = 0; // 当前并发数
- 
+    
 
-    return getJobIds()
-    .then(ids => {
+    res.write(`启动爬虫：<br>`)
+
+    return proxy.getOneValidIp()
+    .then(()=>{
+        return getJobIds()  
+    }).then(ids => {
         res.write(`共${ids.length}项。<br>`)
 
         // proxy.getValidIps([ 'http://112.27.129.54:3128']);
 
         mapLimit(ids, limit, async (jobId)=>{
-            let delay = parseInt(Math.random() * 2000);
             // let requestUrl = "https://www.lagou.com/jobs/" + jobId + ".html" ;
-            let requestUrl = `http://m.lagou.com/jobs/${jobId}.html` ;
+            let requestUrl = `http://m.lagou.com/jobs/${jobId}.html?source=home_hot&i=home_hot-6` ;
+            let delay = parseInt(Math.random() * 2000);
+
+            let currentIndex = count++;
+            let proxyIp;
+
+            proxyIp = await proxy.getOneValidIp(currentIndex);
+
+            // proxyIp =  ''
+ 
             runningRequestNum++
 
-            await sleep(delay);
-            
-            count++
-            let proxyIp = await proxy.getOneValidIp(count);
-
-            // proxyIp =  'http://123.207.150.111:8888'
- 
-           
+            await sleep( delay );
             let result = await spiderHTML.run({
                             requestUrl,
                             jobId,
                             proxyIp
                         }).catch(e =>{
                             if ( e.code === -1 ){
-                                proxy.removeInvalidIp(count);
-
+                                /* 本次爬取失败，ip 可能失效，将其从动态ip池移除 */
+                                proxy.removeInvalidIp(proxyIp);
+                                ids.push(jobId)
+                                console.log(`剩余:`,ids.length)
                                 return e;
                             }
                         })
             
             if (result.code === -1 ) {
-                res.write(`jobId: ${result.jobId}; msg:${result.msg}, proxyIp：${proxyIp}<br>`)
+                res.write(`${currentIndex}：jobId: ${result.jobId}; msg:${result.msg}, proxyIp：${proxyIp}<br>`)
             } else {
-                res.write(`${count}：当前并发数${runningRequestNum}。正在使用代理 ${proxyIp} 抓取的是 ${requestUrl}，耗时 ${delay} 毫秒，<br>`);    
+                res.write(`${currentIndex}：当前并发数${runningRequestNum}。正在使用代理 ${proxyIp} 抓取的是 ${requestUrl}，耗时 ${delay} 毫秒，<br>`);    
             }
             runningRequestNum--
             
@@ -215,8 +217,8 @@ exports.start = (req, res) => {
             res.write(`<br><br><br><br>`);           
         }).catch(e => {
             console.log(e);
-            res.write(JSON.stringify(e))
-            /* 本次爬取失败，ip 可能失效，将其从动态ip池移除 */
+            res.write('Caught by async: '+JSON.stringify(e))
+            
         })
 
 

@@ -16,13 +16,18 @@ var app = express();
 app.get('/start', (req, res)=>{
     res.writeHead(200, {'Content-Type': 'text/html;charset=utf-8' });               // text/html
 
- spiderHTML.start(req, res)
-/*    spiderJSON.start(req, res)
+  // spiderHTML.start(req, res)
+
+    spiderJSON.start(req, res)
     .then(() => {
         res.write(`<br>职位列表爬取完毕<br>`)
-        // spiderHTML.start(req, res)
-    })*/
+        spiderHTML.start(req, res)
+    })
 
+    process.on("uncaughtException", function (err) {
+        console.log('不知道什么错误发生了 : ', err);
+        // spiderHTML.start(req, res)
+    })
 });
 
 var server = app.listen(3000, function () {
@@ -31,3 +36,6 @@ var server = app.listen(3000, function () {
 
     console.log("爬虫应用实例，访问地址 http://%s:%s/spider 启动爬虫并查看进度", host, port)
 });
+
+
+
