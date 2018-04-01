@@ -7,7 +7,7 @@ let http = require("http"),
     eventproxy = require('eventproxy');
 
 let proxy = require('./proxy');
-let CompanyModule = require('./db'); //数据库集合
+let JobModule = require('./db'); //数据库集合
 let mapLimit = require('./mapLimit')
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
@@ -40,7 +40,6 @@ let spiderHTML = {
 'Referer': 'https://www.lagou.com/',
 'Accept-Encoding': 'gzip, deflate, sdch, br',
 'Accept-Language': 'zh-CN,zh;q=0.8',
-/*'Cookie': 'user_trace_token=20180129234926-fbca3d2c-050b-11e8-abd5-5254005c3644; LGUID=20180129234926-fbca4005-050b-11e8-abd5-5254005c3644; index_location_city=%E5%85%A8%E5%9B%BD; JSESSIONID=ABAAABAAADEAAFI7408DB57C16ACD2B65A3622981237C6F; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=https%3A%2F%2Fwww.lagou.com%2Fjobs%2F3776097.html; TG-TRACK-CODE=index_hotjob; _gid=GA1.2.873716699.1520171079; _ga=GA1.2.2019647264.1517240965; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1517664816,1518102544,1520171079; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1520177925; LGSID=20180304232704-7e10d80b-1fc0-11e8-9c55-525400f775ce; LGRID=20180304233844-1f80c464-1fc2-11e8-9c58-525400f775ce',*/
 
                 })
                 .end((err, res)=>{
@@ -51,7 +50,7 @@ let spiderHTML = {
                         console.log(`proxyIp`,proxyIp, `requestUrl`, requestUrl )
                         reject({
                             code: -1,
-                            msg: 'request failed!',
+                            msg: '请求失败! 该代理IP可能已失效。',
                             jobId
                         })
                     } else {
@@ -78,13 +77,8 @@ let spiderHTML = {
             /* 如果这四项数据都没有提取到，很有可能是被拉勾的反爬虫机制拦截了 */
             if ( !(workYear || qualification || field || companySize) ) {
                 console.log(res.text)
-                return Promise.reject({code:-1, msg:'wrong response!', jobId});
+                return Promise.reject({code:-1, msg:'响应数据异常，Ip可能已被封!', jobId});
             }
-        /*console.log('info',
-            jobRequest.find('span:nth-child(3)').text(),
-            jobRequest.find('span:nth-child(4)').text(),
-            companyInfo.find('li:nth-child(1)').text(),
-            companyInfo.find('li:nth-child(3)').text())*/
 
 
         return {
@@ -93,7 +87,6 @@ let spiderHTML = {
                 workYear,
                 qualification,
                 field,
-                // financeStage,
                 companySize,
             }
         }
@@ -101,7 +94,7 @@ let spiderHTML = {
 
     save2db({id, jobInfo}) {
         return new Promise((resolve, reject)=>{
-            CompanyModule.findOneAndUpdate({positionId: id }, jobInfo, 
+            JobModule.findOneAndUpdate({positionId: id }, jobInfo, 
                 (err,result) => {
                 if (err) {
                     console.error('save error', err)
@@ -135,7 +128,7 @@ let sleep = (time) => {
 /* 获取招聘岗位id */
 let getJobIds = () => {
     return new Promise((resolve, reject)=>{
-        CompanyModule.find({
+        JobModule.find({
             companySize: '', 
             workYear:'',
             field: '',

@@ -11,7 +11,7 @@ var mongoose = require('mongoose');
 var settings = require('../settings');
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://192.168.18.130/lagou');
+mongoose.connect(settings.dbUri);
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

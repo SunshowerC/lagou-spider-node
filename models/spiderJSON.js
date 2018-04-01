@@ -6,7 +6,7 @@ var http = require("http"),
     settings = require("../settings"),
     eventproxy = require('eventproxy');
 
-let CompanyModule = require('./db'); //数据库集合
+let JobModule = require('./db'); //数据库集合
 let mapLimit = require('./mapLimit')
 
 
@@ -80,7 +80,7 @@ let spider = {
 
     save2db(companyList) {
         return new Promise((resolve, reject)=>{
-            CompanyModule.create(companyList,function (err,product) {
+            JobModule.create(companyList,function (err,product) {
                 // console.log(product);
                 if (err) {
                     console.error(err.errmsg)
@@ -116,6 +116,7 @@ let sleep = (time) => {
 exports.start =  (req,res) => {
     let limit = 5 ; // 并发控制数
 
+    res.write(`正在爬取岗位 ${settings.job} <br>`);
     return (async ()=>{
         /* 遍历所有城市 */
         for (let curCity of settings.city) {
@@ -137,24 +138,7 @@ exports.start =  (req,res) => {
                 res.write(`正在抓取的是【${curCity}】第 ${curPage}页，耗时 ${delay} 毫秒，当前并发数 ${runningRequestNum--}<br>`);
 
                 return result;
-
-                    /*return new Promise((resolve, reject)=>{
-                        let delay = parseInt(0|Math.random() *  1000 + 1000);
-                        runningRequestNum++
-                        setTimeout(()=>{
-                           
-
-                            spider.run({
-                                city: curCity,
-                                pageNum: curPage,
-                                job: settings.job,
-                            }).then(result => {
-                                res.write(`正在抓取的是【${curCity}】第 ${curPage}页，耗时 ${delay} 毫秒，当前并发数 ${runningRequestNum--}<br>`);
-                                resolve(result)   
-                            })
-                            .catch(reject)
-                        }, delay)
-                    })*/
+ 
                 }).catch(e => {
                     if (e === 'finish') {
                         res.write(`完成${curCity}的爬虫<br><br><br><br>`);      
