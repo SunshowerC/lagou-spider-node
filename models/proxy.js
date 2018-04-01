@@ -2,7 +2,7 @@ let superagent = require("superagent");
 require('superagent-proxy')(superagent);
 let cheerio = require("cheerio");
 
-
+// IP 源， 可自行选用更加稳定可靠的IP 源
 let proxyListUrl = 'http://www.66ip.cn/mo.php?sxb=&tqsl=20&port=&export=&ktip=&sxa=%B5%E7%D0%C5&submit=%CC%E1++%C8%A1&textarea=http%3A%2F%2Fwww.66ip.cn%2F%3Fsxb%3D%26tqsl%3D20%26ports%255B%255D2%3D%26ktip%3D%26sxa%3D%25B5%25E7%25D0%25C5%26radio%3Dradio%26submit%3D%25CC%25E1%2B%2B%25C8%25A1';
 proxyListUrl = `https://www.us-proxy.org/`
 
@@ -47,7 +47,6 @@ let proxy = {
 
                         if (!proxyList) {
                             proxyList = [];
-                            // console.log(res.text)
                         }
                         resolve(proxyList)
                     }

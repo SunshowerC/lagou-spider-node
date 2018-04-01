@@ -34,7 +34,7 @@ var server = app.listen(3000, function () {
     var host = server.address().address;
     var port = server.address().port;
 
-    console.log("爬虫应用实例，访问地址 http://%s:%s/spider 启动爬虫并查看进度", host, port)
+    console.log("爬虫应用实例，访问地址 http://%s:%s/start 启动爬虫并查看进度", host, port)
 });
 
 

@@ -18,6 +18,13 @@
 
 2. 启动爬虫: `npm start` ， 访问 `127.0.0.1:3000/start` 启动并查看进度
 
+## 数据可视化分析demo
+[前端招聘岗位分析](http://weiyu-chen.github.io/data-analysis/frontend.html)
+[C++招聘岗位分析](http://weiyu-chen.github.io/data-analysis/cpp.html)
+[JAVA招聘岗位分析](http://weiyu-chen.github.io/data-analysis/java.html)
+[PHP招聘岗位分析](http://weiyu-chen.github.io/data-analysis/php.html)
+[Python招聘岗位分析](http://weiyu-chen.github.io/data-analysis/python.html)
+
 
 ## 目录
 ```
@@ -37,3 +44,5 @@
 		|---- js/ 		     数据处理
 		|---- index.html 	 数据分析
 ```
+
+
