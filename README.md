@@ -22,11 +22,11 @@
 > 注意事项：此处用的是一个免费的动态IP源，稳定性一般，所以爬虫速度不可能太快。追求速度与激情的，可自行替换更加稳定可靠快速的IP源，秒速爬完不是梦。
 
 ## 数据可视化分析demo
-- [前端招聘岗位分析](http://weiyu-chen.github.io/data-analysis/frontend.html)
-- [C++招聘岗位分析](http://weiyu-chen.github.io/data-analysis/cpp.html)
-- [JAVA招聘岗位分析](http://weiyu-chen.github.io/data-analysis/java.html)
-- [PHP招聘岗位分析](http://weiyu-chen.github.io/data-analysis/php.html)
-- [Python招聘岗位分析](http://weiyu-chen.github.io/data-analysis/python.html)
+- [前端招聘岗位分析](http://sunshowerc.github.io/data-analysis/frontend.html)
+- [C++招聘岗位分析](http://sunshowerc.github.io/data-analysis/cpp.html)
+- [JAVA招聘岗位分析](http://sunshowerc.github.io/data-analysis/java.html)
+- [PHP招聘岗位分析](http://sunshowerc.github.io/data-analysis/php.html)
+- [Python招聘岗位分析](http://sunshowerc.github.io/data-analysis/python.html)
 
 
 ## 目录
