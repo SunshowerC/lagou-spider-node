@@ -48,5 +48,5 @@
 		|---- index.html 	 数据分析
 ```
 
-## [博客详解](https://segmentfault.com/a/1190000014128148)
+## [博客详解](https://github.com/SunshowerC/blog/issues/3)
 
